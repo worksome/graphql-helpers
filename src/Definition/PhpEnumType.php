@@ -38,7 +38,7 @@ class PhpEnumType extends EnumType
          */
         $enumDefinitions = [];
         foreach ($reflection->getCases() as $case) {
-            $enumDefinitions[Str::of($case->name)->title()->snake()->upper()->value()] = [
+            $enumDefinitions[Str::of($case->name)->replace('_', ' ')->title()->snake()->upper()->value()] = [
                 'value' => $case->getValue(),
                 'description' => $this->extractDescription($case),
                 'deprecationReason' => $this->deprecationReason($case),
