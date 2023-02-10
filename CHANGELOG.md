@@ -2,6 +2,11 @@
 
 All notable changes to `graphql-helpers` will be documented in this file.
 
+## 0.1.2 - 2023-02-10
+
+### Fixed
+- Fix output for upper-snake case enum cases
+
 ## 0.1.1 - 2023-02-10
 
 ### Fixed
