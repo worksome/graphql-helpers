@@ -17,7 +17,7 @@
     ],
     "require": {
         "php": "^8.2",
-        "illuminate/support": "^10.0",
+        "illuminate/support": "^9.0|10.0",
         "webonyx/graphql-php": "^15.1"
     },
     "require-dev": {
@@ -25,8 +25,7 @@
         "nunomaduro/larastan": "^2.4.0",
         "pestphp/pest": "^1.22.3",
         "pestphp/pest-plugin-parallel": "^1.2",
-        "worksome/coding-style": "^2.3.2",
-        "worksome/pest-plugin-silence": "^0.1.2"
+        "worksome/coding-style": "^2.3.2"
     },
     "autoload": {
         "psr-4": {
