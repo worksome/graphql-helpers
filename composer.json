@@ -1,0 +1,63 @@
+{
+    "name": "worksome/graphql-helpers",
+    "description": "This is my package graphql-helpers",
+    "keywords": [
+        "worksome",
+        "laravel",
+        "graphql-helpers"
+    ],
+    "homepage": "https://github.com/worksome/graphql-helpers",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Owen Voke",
+            "email": "owen.voke@worksome.com",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": "^8.2",
+        "illuminate/support": "^10.0",
+        "webonyx/graphql-php": "^15.1"
+    },
+    "require-dev": {
+        "nunomaduro/collision": "^6.4",
+        "nunomaduro/larastan": "^2.4.0",
+        "pestphp/pest": "^1.22.3",
+        "pestphp/pest-plugin-parallel": "^1.2",
+        "worksome/coding-style": "^2.3.2",
+        "worksome/pest-plugin-silence": "^0.1.2"
+    },
+    "autoload": {
+        "psr-4": {
+            "Worksome\\GraphQLHelpers\\": "src"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Worksome\\GraphQLHelpers\\Tests\\": "tests"
+        }
+    },
+    "scripts": {
+        "lint": "vendor/bin/ecs --fix",
+        "test:unit": "vendor/bin/pest -p",
+        "test:coverage": "vendor/bin/pest -p --coverage",
+        "test:types": "vendor/bin/phpstan analyse",
+        "test:style": "vendor/bin/ecs",
+        "test": [
+            "@test:style",
+            "@test:types",
+            "@test:unit"
+        ]
+    },
+    "config": {
+        "sort-packages": true,
+        "allow-plugins": {
+            "pestphp/pest-plugin": true,
+            "dealerdirect/phpcodesniffer-composer-installer": true,
+            "worksome/coding-style": true
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}
