@@ -11,6 +11,7 @@ use GraphQL\Type\Definition\EnumType;
 use GraphQL\Utils\PhpDoc;
 use GraphQL\Utils\Utils;
 use Illuminate\Support\Str;
+use Jawira\CaseConverter\Convert;
 
 /**
  * @phpstan-import-type PartialEnumValueConfig from EnumType
@@ -38,7 +39,7 @@ class PhpEnumType extends EnumType
          */
         $enumDefinitions = [];
         foreach ($reflection->getCases() as $case) {
-            $enumDefinitions[Str::of($case->name)->replace('_', ' ')->title()->snake()->upper()->value()] = [
+            $enumDefinitions[(new Convert($case->name))->toMacro()] = [
                 'value' => $case->getValue(),
                 'description' => $this->extractDescription($case),
                 'deprecationReason' => $this->deprecationReason($case),

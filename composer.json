@@ -18,6 +18,7 @@
     "require": {
         "php": "^8.2",
         "illuminate/support": "^9.0|10.0",
+        "jawira/case-converter": "^3.5",
         "webonyx/graphql-php": "^15.1"
     },
     "require-dev": {
