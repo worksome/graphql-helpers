@@ -29,7 +29,7 @@ class PhpEnumType extends EnumType
     /**
      * @param class-string<\UnitEnum> $enum
      */
-    public function __construct(string $enum)
+    public function __construct(string $enum, string $name = null)
     {
         $this->enumClass = $enum;
         $reflection = new \ReflectionEnum($enum);
@@ -47,7 +47,7 @@ class PhpEnumType extends EnumType
         }
 
         parent::__construct([
-            'name' => $this->baseName($enum),
+            'name' => $name ?? $this->baseName($enum),
             'values' => $enumDefinitions,
             'description' => $this->extractDescription($reflection),
         ]);
