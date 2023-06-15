@@ -10,8 +10,9 @@ use GraphQL\Type\Definition\Description;
 use GraphQL\Type\Definition\EnumType;
 use GraphQL\Utils\PhpDoc;
 use GraphQL\Utils\Utils;
-use Illuminate\Support\Str;
 use Jawira\CaseConverter\Convert;
+use ReflectionEnum;
+use UnitEnum;
 
 /**
  * @phpstan-import-type PartialEnumValueConfig from EnumType
@@ -22,35 +23,38 @@ class PhpEnumType extends EnumType
     public const MULTIPLE_DEPRECATIONS_DISALLOWED = 'Using more than 1 Deprecated attribute is not supported.';
 
     /**
-     * @var class-string<\UnitEnum>
+     * @var class-string<UnitEnum>
      */
     protected string $enumClass;
 
     /**
-     * @param class-string<\UnitEnum> $enum
+     * @param class-string<UnitEnum> $enumClass
      */
-    public function __construct(string $enum, string $name = null)
+    public function __construct(string $enumClass, string $name = null)
     {
-        $this->enumClass = $enum;
-        $reflection = new \ReflectionEnum($enum);
-
+        $this->enumClass = $enumClass;
+        $reflection = new ReflectionEnum($enumClass);
         /**
          * @var array<string, PartialEnumValueConfig> $enumDefinitions
          */
         $enumDefinitions = [];
         foreach ($reflection->getCases() as $case) {
-            $enumDefinitions[(new Convert($case->name))->toMacro()] = [
-                'value' => $case->getValue(),
+            $upperCaseName = (new Convert($case->name))->toMacro();
+
+            $enumDefinitions[$upperCaseName] = [
+                'value' => $reflection->isBacked() ? $case->getValue()->value : $upperCaseName,
                 'description' => $this->extractDescription($case),
                 'deprecationReason' => $this->deprecationReason($case),
             ];
         }
 
-        parent::__construct([
-            'name' => $name ?? $this->baseName($enum),
-            'values' => $enumDefinitions,
-            'description' => $this->extractDescription($reflection),
-        ]);
+        parent::__construct(
+            [
+                'name' => $name ?? $this->baseName($enumClass),
+                'values' => $enumDefinitions,
+                'description' => $this->extractDescription($reflection),
+            ]
+        );
     }
 
     public function serialize($value): string
