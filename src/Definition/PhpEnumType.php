@@ -39,10 +39,8 @@ class PhpEnumType extends EnumType
          */
         $enumDefinitions = [];
         foreach ($reflection->getCases() as $case) {
-            $upperCaseName = (new Convert($case->name))->toMacro();
-
-            $enumDefinitions[$upperCaseName] = [
-                'value' => $reflection->isBacked() ? $case->getValue()->value : $upperCaseName,
+            $enumDefinitions[(new Convert($case->name))->toMacro()] = [
+                'value' => $case->getValue(),
                 'description' => $this->extractDescription($case),
                 'deprecationReason' => $this->deprecationReason($case),
             ];

@@ -70,7 +70,7 @@ it(
 )->with('dummy-enums');
 
 it(
-    'generates correct GQL value from backed enum cases',
+    'generates correct GQL value from enum cases',
     function ($enumClass) {
         $type = new PhpEnumType($enumClass);
 
@@ -80,41 +80,13 @@ it(
 
         expect($values)->toBe(
             [
-                $enumClass::PascalCase->value,
-                $enumClass::SCREAMING_SNAKE_CASE->value,
-                $enumClass::snake_case->value,
+                $enumClass::PascalCase,
+                $enumClass::SCREAMING_SNAKE_CASE,
+                $enumClass::snake_case,
             ],
         );
     },
-)->with(
-    [
-        DummyStringEnum::class,
-        DummyIntEnum::class,
-    ],
-);
-
-it(
-    'generates correct GQL value from non-backed enum cases',
-    function ($enumClass) {
-        $type = new PhpEnumType($enumClass);
-
-        $values = Collection::make($type->getValues())
-                            ->map(fn(EnumValueDefinition $definition) => $definition->value)
-                            ->all();
-
-        expect($values)->toBe(
-            [
-                'PASCAL_CASE',
-                'SCREAMING_SNAKE_CASE',
-                'SNAKE_CASE'
-            ],
-        );
-    },
-)->with(
-    [
-        DummyEnum::class,
-    ],
-);
+)->with('dummy-enums');
 
 it(
     'extracts description from php attribute',
