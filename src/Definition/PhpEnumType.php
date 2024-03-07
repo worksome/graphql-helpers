@@ -57,8 +57,7 @@ class PhpEnumType extends EnumType
 
     public function serialize($value): string
     {
-        /** @phpstan-ignore-next-line */
-        if (! is_a($value, $this->enumClass)) {
+        if (! ($value instanceof $this->enumClass)) {
             $notEnum = Utils::printSafe($value);
             throw new SerializationError(
                 "Cannot serialize value as enum: {$notEnum}, expected instance of {$this->enumClass}."
@@ -66,6 +65,16 @@ class PhpEnumType extends EnumType
         }
 
         return $value->name;
+    }
+
+    public function parseValue($value)
+    {
+        // Can happen when variable values undergo a serialization cycle before execution
+        if ($value instanceof $this->enumClass) {
+            return $value;
+        }
+
+        return parent::parseValue($value);
     }
 
     /**
