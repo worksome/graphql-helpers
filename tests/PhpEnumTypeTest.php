@@ -54,11 +54,13 @@ it(
     'generates correct GQL name from enum cases',
     function ($enumClass) {
         $type = new PhpEnumType($enumClass);
+
         expect($type->name)->toBe(class_basename($enumClass));
 
         $names = Collection::make($type->getValues())
                            ->map(fn(EnumValueDefinition $definition) => $definition->name)
                            ->all();
+
         expect($names)->toBe(
             [
                 'PASCAL_CASE',
@@ -92,6 +94,7 @@ it(
     'extracts description from php attribute',
     function ($enumClass) {
         $type = new PhpEnumType($enumClass);
+
         $descriptions = Collection::make($type->getValues())->map(
             fn(EnumValueDefinition $definition) => $definition->description,
         )->all();
