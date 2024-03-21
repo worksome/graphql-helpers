@@ -27,7 +27,7 @@ composer test
 
 ## Changelog
 
-Please see [CHANGELOG](CHANGELOG.md) for more information on what has changed recently.
+Please see [GitHub Releases](https://github.com/worksome/graphql-helpers/releases) for more information on what has changed recently.
 
 ## Contributing
 
