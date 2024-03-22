@@ -64,7 +64,7 @@ class PhpEnumType extends EnumType
             );
         }
 
-        return $value->name;
+        return (new Convert($value->name))->toMacro();
     }
 
     public function parseValue($value)
