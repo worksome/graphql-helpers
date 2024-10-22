@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Worksome\GraphQLHelpers\Tests;
+namespace Worksome\GraphQLHelpers\Tests\Unit\Definition;
 
 use GraphQL\Type\Definition\Description;
 use GraphQL\Type\Definition\EnumValueDefinition;
