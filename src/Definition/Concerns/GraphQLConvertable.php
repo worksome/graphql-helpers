@@ -7,9 +7,7 @@ namespace Worksome\GraphQLHelpers\Definition\Concerns;
 use Jawira\CaseConverter\Convert;
 use UnitEnum;
 
-/**
- * @mixin UnitEnum
- */
+/** @mixin UnitEnum */
 trait GraphQLConvertable
 {
     public function toGraphQLValue(): string
