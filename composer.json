@@ -16,16 +16,18 @@
         }
     ],
     "require": {
-        "php": "^8.2",
-        "illuminate/support": "^10.0 || ^11.0",
+        "php": "^8.3",
+        "illuminate/support": "^11.0 || ^12.0",
         "jawira/case-converter": "^3.5",
-        "webonyx/graphql-php": "^15.9"
+        "webonyx/graphql-php": "^15.19"
     },
     "require-dev": {
-        "nunomaduro/collision": "^7.0 || ^8.0",
-        "larastan/larastan": "^2.6",
-        "pestphp/pest": "^2.33",
-        "worksome/coding-style": "^2.8"
+        "larastan/larastan": "^3.1",
+        "nunomaduro/collision": "^7.10 || ^8.1.1",
+        "orchestra/testbench": "^9.12 || ^10.1",
+        "pestphp/pest": "^3.7",
+        "pestphp/pest-plugin-laravel": "^3.1",
+        "worksome/coding-style": "^3.2"
     },
     "autoload": {
         "psr-4": {

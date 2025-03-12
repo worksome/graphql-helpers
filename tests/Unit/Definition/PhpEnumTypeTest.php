@@ -14,8 +14,10 @@ enum DummyEnum
 {
     #[Description('PascalCase description')]
     case PascalCase;
+
     #[Description('SCREAMING_SNAKE_CASE description')]
     case SCREAMING_SNAKE_CASE; // phpcs:ignore
+
     #[Description('snake_case description')]
     case snake_case; // phpcs:ignore
 }
@@ -25,8 +27,10 @@ enum DummyStringEnum: string
 {
     #[Description('PascalCase description')]
     case PascalCase = 'pascal-case';
+
     #[Description('SCREAMING_SNAKE_CASE description')]
     case SCREAMING_SNAKE_CASE = 'screaming-snake-case'; // phpcs:ignore
+
     #[Description('snake_case description')]
     case snake_case = 'snake-case'; // phpcs:ignore
 }
@@ -36,8 +40,10 @@ enum DummyIntEnum: int
 {
     #[Description('PascalCase description')]
     case PascalCase = 1;
+
     #[Description('SCREAMING_SNAKE_CASE description')]
     case SCREAMING_SNAKE_CASE = 2; // phpcs:ignore
+
     #[Description('snake_case description')]
     case snake_case = 3; // phpcs:ignore
 }
@@ -58,7 +64,7 @@ it(
         expect($type->name)->toBe(class_basename($enumClass));
 
         $names = Collection::make($type->getValues())
-                           ->map(fn(EnumValueDefinition $definition) => $definition->name)
+                           ->map(fn (EnumValueDefinition $definition) => $definition->name)
                            ->all();
 
         expect($names)->toBe(
@@ -77,7 +83,7 @@ it(
         $type = new PhpEnumType($enumClass);
 
         $values = Collection::make($type->getValues())
-                            ->map(fn(EnumValueDefinition $definition) => $definition->value)
+                            ->map(fn (EnumValueDefinition $definition) => $definition->value)
                             ->all();
 
         expect($values)->toBe(
@@ -96,7 +102,7 @@ it(
         $type = new PhpEnumType($enumClass);
 
         $descriptions = Collection::make($type->getValues())->map(
-            fn(EnumValueDefinition $definition) => $definition->description,
+            fn (EnumValueDefinition $definition) => $definition->description,
         )->all();
 
         expect($type->description)->toBe('Dummy enum description')->and($descriptions)->toBe(

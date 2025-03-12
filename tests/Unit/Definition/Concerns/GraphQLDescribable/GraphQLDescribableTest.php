@@ -14,10 +14,13 @@ enum DummyEnum
 
     #[Description('PascalCase description')]
     case PascalCase;
+
     #[Description('SCREAMING_SNAKE_CASE description')]
     case SCREAMING_SNAKE_CASE; // phpcs:ignore
+
     #[Description('snake_case description')]
     case snake_case; // phpcs:ignore
+
     case NoDescription;
 }
 
