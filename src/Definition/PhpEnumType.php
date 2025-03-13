@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Worksome\GraphQLHelpers\Definition;
 
+use Exception;
 use GraphQL\Error\SerializationError;
 use GraphQL\Type\Definition\Deprecated;
 use GraphQL\Type\Definition\Description;
@@ -11,32 +12,27 @@ use GraphQL\Type\Definition\EnumType;
 use GraphQL\Utils\PhpDoc;
 use GraphQL\Utils\Utils;
 use Jawira\CaseConverter\Convert;
+use ReflectionClass;
+use ReflectionClassConstant;
 use ReflectionEnum;
 use UnitEnum;
 
-/**
- * @phpstan-import-type PartialEnumValueConfig from EnumType
- */
+/** @phpstan-import-type PartialEnumValueConfig from EnumType */
 class PhpEnumType extends EnumType
 {
-    public const MULTIPLE_DESCRIPTIONS_DISALLOWED = 'Using more than 1 Description attribute is not supported.';
-    public const MULTIPLE_DEPRECATIONS_DISALLOWED = 'Using more than 1 Deprecated attribute is not supported.';
+    public const string MULTIPLE_DESCRIPTIONS_DISALLOWED = 'Using more than 1 Description attribute is not supported.';
 
-    /**
-     * @var class-string<UnitEnum>
-     */
+    public const string MULTIPLE_DEPRECATIONS_DISALLOWED = 'Using more than 1 Deprecated attribute is not supported.';
+
+    /** @var class-string<UnitEnum> */
     protected string $enumClass;
 
-    /**
-     * @param class-string<UnitEnum> $enumClass
-     */
-    public function __construct(string $enumClass, string $name = null)
+    /** @param class-string<UnitEnum> $enumClass */
+    public function __construct(string $enumClass, string|null $name = null)
     {
         $this->enumClass = $enumClass;
         $reflection = new ReflectionEnum($enumClass);
-        /**
-         * @var array<string, PartialEnumValueConfig> $enumDefinitions
-         */
+        /** @var array<string, PartialEnumValueConfig> $enumDefinitions */
         $enumDefinitions = [];
         foreach ($reflection->getCases() as $case) {
             $enumDefinitions[(new Convert($case->name))->toMacro()] = [
@@ -59,6 +55,7 @@ class PhpEnumType extends EnumType
     {
         if (! ($value instanceof $this->enumClass)) {
             $notEnum = Utils::printSafe($value);
+
             throw new SerializationError(
                 "Cannot serialize value as enum: {$notEnum}, expected instance of {$this->enumClass}."
             );
@@ -77,9 +74,7 @@ class PhpEnumType extends EnumType
         return parent::parseValue($value);
     }
 
-    /**
-     * @param class-string $class
-     */
+    /** @param class-string $class */
     protected function baseName(string $class): string
     {
         $parts = explode('\\', $class);
@@ -88,7 +83,7 @@ class PhpEnumType extends EnumType
     }
 
     /** @phpstan-ignore-next-line */
-    protected function extractDescription(\ReflectionClassConstant|\ReflectionClass $reflection): ?string
+    protected function extractDescription(ReflectionClassConstant|ReflectionClass $reflection): string|null
     {
         $attributes = $reflection->getAttributes(Description::class);
 
@@ -97,7 +92,7 @@ class PhpEnumType extends EnumType
         }
 
         if (count($attributes) > 1) {
-            throw new \Exception(self::MULTIPLE_DESCRIPTIONS_DISALLOWED);
+            throw new Exception(self::MULTIPLE_DESCRIPTIONS_DISALLOWED);
         }
 
         $comment = $reflection->getDocComment();
@@ -106,7 +101,7 @@ class PhpEnumType extends EnumType
         return PhpDoc::unwrap($unpadded);
     }
 
-    protected function deprecationReason(\ReflectionClassConstant $reflection): ?string
+    protected function deprecationReason(ReflectionClassConstant $reflection): string|null
     {
         $attributes = $reflection->getAttributes(Deprecated::class);
 
@@ -115,7 +110,7 @@ class PhpEnumType extends EnumType
         }
 
         if (count($attributes) > 1) {
-            throw new \Exception(self::MULTIPLE_DEPRECATIONS_DISALLOWED);
+            throw new Exception(self::MULTIPLE_DEPRECATIONS_DISALLOWED);
         }
 
         return null;

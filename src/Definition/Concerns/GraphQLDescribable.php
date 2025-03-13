@@ -10,7 +10,11 @@ use Illuminate\Support\Str;
 use ReflectionEnum;
 use UnitEnum;
 
-/** @mixin UnitEnum */
+/**
+ * @mixin UnitEnum
+ *
+ * @phpstan-ignore trait.unused
+ */
 trait GraphQLDescribable
 {
     public function description(): string
@@ -24,7 +28,9 @@ trait GraphQLDescribable
             0 => self::friendlyDescription($this->name),
             1 => $descriptionAttributes[0]->newInstance()->description,
             default => throw new Exception(
-                'You cannot use more than 1 description attribute on ' . class_basename(static::class) . '::' . $this->name
+                'You cannot use more than 1 description attribute on ' . class_basename(
+                    static::class
+                ) . '::' . $this->name
             ),
         };
     }
