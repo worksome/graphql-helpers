@@ -17,7 +17,66 @@ composer require worksome/graphql-helpers
 
 ## Usage
 
-...
+### Enum Type Registration
+
+The [`PhpEnumType`](src/Definition/PhpEnumType.php) class can be used to override the `GraphQL\Type\Definition\EnumType` class with automatic case conversion.
+
+```php
+enum MyEnum {
+    case CaseOne;
+}
+
+new \Worksome\GraphQLHelpers\Definition\PhpEnumType(MyEnum::class);
+```
+
+### Enum Concerns
+
+#### `GraphQLConvertable`
+
+The [`GraphQLConvertable` concern](src/Definition/Concerns/GraphQLConvertable.php) is used to easily convert an enum instance to its GraphQL value within your codebase.
+
+```php
+enum MyEnum
+{
+    use \Worksome\GraphQLHelpers\Definition\Concerns\GraphQLConvertable;
+    
+    case CaseOne;
+}
+
+MyEnum::CaseOne->toGraphQLValue(); // CASE_ONE
+```
+
+#### `GraphQLDescribable`
+
+The [`GraphQLDescribable` concern](src/Definition/Concerns/GraphQLDescribable.php) is used to easily retrieve the description of an enum instance using the value from a `GraphQL\Type\Definition\Description` attribute.
+
+```php
+enum MyEnum
+{
+    use \Worksome\GraphQLHelpers\Definition\Concerns\GraphQLDescribable;
+    
+    #[\GraphQL\Type\Definition\Description('The First Case!')]
+    case CaseOne;
+}
+
+MyEnum::CaseOne->description(); // The First Case!
+```
+
+### Testing Enums
+
+The [`HandlesEnumConversions` concern](src/Testing/Concerns/HandlesEnumConversions.php) adds support for quickly converting an enum to its GraphQL value.
+
+```php
+enum MyEnum
+{
+    case CaseOne;
+}
+
+// In Pest
+uses(\Worksome\GraphQLHelpers\Testing\Concerns\HandlesEnumConversions::class);
+
+$this->enumToGraphQL(MyEnum::CaseOne); // CASE_ONE
+```
 
 ## Testing
 
