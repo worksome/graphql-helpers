@@ -20,6 +20,9 @@ enum DummyEnum
 
     #[Description('snake_case description')]
     case snake_case; // phpcs:ignore
+
+    #[Description('snake_case description')]
+    case IR35; // phpcs:ignore
 }
 
 it('can convert an enum to the correct case for GraphQL', function (DummyEnum $enum, string $graphQLValue) {
@@ -28,4 +31,5 @@ it('can convert an enum to the correct case for GraphQL', function (DummyEnum $e
     [DummyEnum::PascalCase, 'PASCAL_CASE'],
     [DummyEnum::SCREAMING_SNAKE_CASE, 'SCREAMING_SNAKE_CASE'],
     [DummyEnum::snake_case, 'SNAKE_CASE'],
+    [DummyEnum::IR35, 'IR35'],
 ]);
