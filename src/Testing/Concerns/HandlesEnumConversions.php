@@ -12,6 +12,6 @@ trait HandlesEnumConversions
 {
     public function enumToGraphQL(UnitEnum $enum): string
     {
-        return (new Convert($enum->name))->toMacro();
+        return (new Convert($enum->name))->fromAuto(false)->toMacro();
     }
 }

@@ -16,6 +16,6 @@ trait GraphQLConvertable
 {
     public function toGraphQLValue(): string
     {
-        return (new Convert($this->name))->toMacro();
+        return (new Convert($this->name))->fromAuto(false)->toMacro();
     }
 }
