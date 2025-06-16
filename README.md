@@ -22,7 +22,8 @@ composer require worksome/graphql-helpers
 The [`PhpEnumType`](src/Definition/PhpEnumType.php) class can be used to override the `GraphQL\Type\Definition\EnumType` class with automatic case conversion.
 
 ```php
-enum MyEnum {
+enum MyEnum
+{
     case CaseOne;
 }
 
