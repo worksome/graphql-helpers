@@ -16,6 +16,7 @@ use ReflectionClass;
 use ReflectionClassConstant;
 use ReflectionEnum;
 use UnitEnum;
+use Worksome\GraphQLHelpers\Definition\Attributes\CasesDescribedByClosure;
 
 /** @phpstan-import-type PartialEnumValueConfig from EnumType */
 class PhpEnumType extends EnumType
@@ -35,9 +36,13 @@ class PhpEnumType extends EnumType
         /** @var array<string, PartialEnumValueConfig> $enumDefinitions */
         $enumDefinitions = [];
         foreach ($reflection->getCases() as $case) {
+            $actualCase = $enumClass::{$case->name};
+
+            assert($actualCase instanceof UnitEnum);
+
             $enumDefinitions[(new Convert($case->name))->fromAuto(false)->toMacro()] = [
                 'value' => $case->getValue(),
-                'description' => $this->extractDescription($case),
+                'description' => $this->extractDescription($case, $actualCase),
                 'deprecationReason' => $this->deprecationReason($case),
             ];
         }
@@ -83,8 +88,10 @@ class PhpEnumType extends EnumType
     }
 
     /** @phpstan-ignore-next-line */
-    protected function extractDescription(ReflectionClassConstant|ReflectionClass $reflection): string|null
-    {
+    protected function extractDescription(
+        ReflectionClassConstant|ReflectionClass $reflection,
+        UnitEnum|null $actualCase = null,
+    ): string|null {
         $attributes = $reflection->getAttributes(Description::class);
 
         if (count($attributes) === 1) {
@@ -93,6 +100,12 @@ class PhpEnumType extends EnumType
 
         if (count($attributes) > 1) {
             throw new Exception(self::MULTIPLE_DESCRIPTIONS_DISALLOWED);
+        }
+
+        $attributes = $reflection->getAttributes(CasesDescribedByClosure::class);
+
+        if ($actualCase && count($attributes) === 1) {
+            return ($attributes[0]->newInstance()->describer)($actualCase);
         }
 
         $comment = $reflection->getDocComment();
