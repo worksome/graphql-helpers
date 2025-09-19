@@ -30,6 +30,26 @@ enum MyEnum
 new \Worksome\GraphQLHelpers\Definition\PhpEnumType(MyEnum::class);
 ```
 
+The `PhpEnumType` class will automatically use the description from the `GraphQL\Type\Definition\Description`
+attribute if it is present.
+
+#### The `CasesDescribedBy` attribute
+
+If you require the use of a custom method to retrieve the description, you can use the `#[CasesDescribedBy]` attribute.
+
+```php
+#[\Worksome\GraphQLHelpers\Definition\Attributes\CasesDescribedBy(describer: 'description')]
+enum MyEnum
+{
+    case CaseOne;
+
+    public function description(): string
+    {
+        return 'The First Case!';
+    }
+}
+```
+
 ### Enum Concerns
 
 #### `GraphQLConvertable`
