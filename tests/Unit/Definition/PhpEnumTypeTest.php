@@ -7,6 +7,7 @@ namespace Worksome\GraphQLHelpers\Tests\Unit\Definition;
 use GraphQL\Type\Definition\Description;
 use GraphQL\Type\Definition\EnumValueDefinition;
 use Illuminate\Support\Collection;
+use Worksome\GraphQLHelpers\Definition\Attributes\CasesDescribedBy;
 use Worksome\GraphQLHelpers\Definition\PhpEnumType;
 
 #[Description('Dummy enum description')]
@@ -46,6 +47,17 @@ enum DummyIntEnum: int
 
     #[Description('snake_case description')]
     case snake_case = 3; // phpcs:ignore
+}
+
+#[CasesDescribedBy(describer: 'description')]
+enum EnumWithDescriptionMethod
+{
+    case Main;
+
+    public function description(): string
+    {
+        return 'Main enum description';
+    }
 }
 
 dataset(
@@ -114,3 +126,15 @@ it(
         );
     },
 )->with('dummy-enums');
+
+it('extracts description from method', function () {
+    $type = new PhpEnumType(EnumWithDescriptionMethod::class);
+
+    $descriptions = Collection::make($type->getValues())->map(
+        fn (EnumValueDefinition $definition) => $definition->description,
+    )->all();
+
+    expect($descriptions)->toBe([
+        'Main enum description',
+    ]);
+});

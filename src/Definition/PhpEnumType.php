@@ -12,10 +12,11 @@ use GraphQL\Type\Definition\EnumType;
 use GraphQL\Utils\PhpDoc;
 use GraphQL\Utils\Utils;
 use Jawira\CaseConverter\Convert;
-use ReflectionClass;
 use ReflectionClassConstant;
 use ReflectionEnum;
+use ReflectionEnumUnitCase;
 use UnitEnum;
+use Worksome\GraphQLHelpers\Definition\Attributes\CasesDescribedBy;
 
 /** @phpstan-import-type PartialEnumValueConfig from EnumType */
 class PhpEnumType extends EnumType
@@ -27,11 +28,12 @@ class PhpEnumType extends EnumType
     /** @var class-string<UnitEnum> */
     protected string $enumClass;
 
-    /** @param class-string<UnitEnum> $enumClass */
+    /** @param  class-string<UnitEnum>  $enumClass */
     public function __construct(string $enumClass, string|null $name = null)
     {
         $this->enumClass = $enumClass;
         $reflection = new ReflectionEnum($enumClass);
+
         /** @var array<string, PartialEnumValueConfig> $enumDefinitions */
         $enumDefinitions = [];
         foreach ($reflection->getCases() as $case) {
@@ -74,7 +76,7 @@ class PhpEnumType extends EnumType
         return parent::parseValue($value);
     }
 
-    /** @param class-string $class */
+    /** @param  class-string  $class */
     protected function baseName(string $class): string
     {
         $parts = explode('\\', $class);
@@ -83,16 +85,24 @@ class PhpEnumType extends EnumType
     }
 
     /** @phpstan-ignore-next-line */
-    protected function extractDescription(ReflectionClassConstant|ReflectionClass $reflection): string|null
-    {
-        $attributes = $reflection->getAttributes(Description::class);
+    protected function extractDescription(
+        ReflectionEnum|ReflectionEnumUnitCase $reflection,
+    ): string|null {
+        $descriptions = $reflection->getAttributes(Description::class);
 
-        if (count($attributes) === 1) {
-            return $attributes[0]->newInstance()->description;
+        if (count($descriptions) === 1) {
+            return $descriptions[0]->newInstance()->description;
         }
 
-        if (count($attributes) > 1) {
+        if (count($descriptions) > 1) {
             throw new Exception(self::MULTIPLE_DESCRIPTIONS_DISALLOWED);
+        }
+
+        if (
+            $reflection instanceof ReflectionEnumUnitCase
+            && $description = $this->resolveDescriptionFromDescriber($reflection)
+        ) {
+            return $description;
         }
 
         $comment = $reflection->getDocComment();
@@ -103,16 +113,57 @@ class PhpEnumType extends EnumType
 
     protected function deprecationReason(ReflectionClassConstant $reflection): string|null
     {
-        $attributes = $reflection->getAttributes(Deprecated::class);
+        $deprecations = $reflection->getAttributes(Deprecated::class);
 
-        if (count($attributes) === 1) {
-            return $attributes[0]->newInstance()->reason;
+        if (count($deprecations) === 1) {
+            return $deprecations[0]->newInstance()->reason;
         }
 
-        if (count($attributes) > 1) {
+        if (count($deprecations) > 1) {
             throw new Exception(self::MULTIPLE_DEPRECATIONS_DISALLOWED);
         }
 
         return null;
+    }
+
+    private function resolveDescriptionFromDescriber(ReflectionEnumUnitCase $reflection): string|null
+    {
+        $enum = $reflection->getEnum();
+
+        $describers = $reflection->getEnum()->getAttributes(CasesDescribedBy::class);
+
+        if (count($describers) === 0) {
+            return null;
+        }
+
+        $describer = $describers[0]->newInstance()->describer;
+
+        if (! $enum->hasMethod($describer)) {
+            throw new Exception(
+                sprintf(
+                    'The describer method `%s` does not exist on `%s`',
+                    $describer,
+                    $enum->name
+                )
+            );
+        }
+
+        $description = $enum->getMethod($describer)->invoke($reflection->getValue());
+
+        if ($description === null) {
+            return null;
+        }
+
+        if (! is_string($description)) {
+            throw new Exception(
+                sprintf(
+                    'The describer method `%s` on `%s` must return a string',
+                    $describer,
+                    $enum->name
+                )
+            );
+        }
+
+        return $description;
     }
 }
