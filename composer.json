@@ -25,8 +25,8 @@
         "larastan/larastan": "^3.1",
         "nunomaduro/collision": "^7.10 || ^8.1.1",
         "orchestra/testbench": "^9.12 || ^10.1",
-        "pestphp/pest": "^3.7",
-        "pestphp/pest-plugin-laravel": "^3.1",
+        "pestphp/pest": "^4.3",
+        "pestphp/pest-plugin-laravel": "^4.0",
         "worksome/coding-style": "^3.2"
     },
     "autoload": {

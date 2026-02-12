@@ -11,12 +11,12 @@ use GraphQL\Type\Definition\Description;
 use GraphQL\Type\Definition\EnumType;
 use GraphQL\Utils\PhpDoc;
 use GraphQL\Utils\Utils;
-use Jawira\CaseConverter\Convert;
 use ReflectionClassConstant;
 use ReflectionEnum;
 use ReflectionEnumUnitCase;
 use UnitEnum;
 use Worksome\GraphQLHelpers\Definition\Attributes\CasesDescribedBy;
+use Worksome\GraphQLHelpers\Utils\UpperSnakeCaseConverter;
 
 /** @phpstan-import-type PartialEnumValueConfig from EnumType */
 class PhpEnumType extends EnumType
@@ -37,7 +37,7 @@ class PhpEnumType extends EnumType
         /** @var array<string, PartialEnumValueConfig> $enumDefinitions */
         $enumDefinitions = [];
         foreach ($reflection->getCases() as $case) {
-            $enumDefinitions[(new Convert($case->name))->fromAuto(false)->toMacro()] = [
+            $enumDefinitions[UpperSnakeCaseConverter::convert($case->name)] = [
                 'value' => $case->getValue(),
                 'description' => $this->extractDescription($case),
                 'deprecationReason' => $this->deprecationReason($case),
@@ -63,7 +63,7 @@ class PhpEnumType extends EnumType
             );
         }
 
-        return (new Convert($value->name))->fromAuto(false)->toMacro();
+        return UpperSnakeCaseConverter::convert($value->name);
     }
 
     public function parseValue($value)
