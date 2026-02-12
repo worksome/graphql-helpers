@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace Worksome\GraphQLHelpers\Testing\Concerns;
 
-use Jawira\CaseConverter\Convert;
 use UnitEnum;
+use Worksome\GraphQLHelpers\Utils\UpperSnakeCaseConverter;
 
 /** @phpstan-ignore trait.unused */
 trait HandlesEnumConversions
 {
     public function enumToGraphQL(UnitEnum $enum): string
     {
-        return (new Convert($enum->name))->fromAuto(false)->toMacro();
+        return UpperSnakeCaseConverter::convert($enum->name);
     }
 }
