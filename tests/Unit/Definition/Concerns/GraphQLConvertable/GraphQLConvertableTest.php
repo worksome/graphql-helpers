@@ -15,21 +15,48 @@ enum DummyEnum
     #[Description('PascalCase description')]
     case PascalCase;
 
-    #[Description('SCREAMING_SNAKE_CASE description')]
-    case SCREAMING_SNAKE_CASE; // phpcs:ignore
+    #[Description('MACRO_CASE description')]
+    case MACRO_CASE; // phpcs:ignore
 
     #[Description('snake_case description')]
     case snake_case; // phpcs:ignore
 
-    #[Description('snake_case description')]
+    #[Description('UPPERCASE_NUMERIC description')]
     case IR35; // phpcs:ignore
+
+    #[Description('numeric description')]
+    case _123; // phpcs:ignore
 }
 
 it('can convert an enum to the correct case for GraphQL', function (DummyEnum $enum, string $graphQLValue) {
     expect($enum->toGraphQLValue())->toBe($graphQLValue);
 })->with([
     [DummyEnum::PascalCase, 'PASCAL_CASE'],
-    [DummyEnum::SCREAMING_SNAKE_CASE, 'SCREAMING_SNAKE_CASE'],
+    [DummyEnum::MACRO_CASE, 'MACRO_CASE'],
     [DummyEnum::snake_case, 'SNAKE_CASE'],
     [DummyEnum::IR35, 'IR35'],
+    [DummyEnum::_123, '_123'],
+]);
+
+enum PascalOnlyDummyEnum: string
+{
+    use GraphQLConvertable;
+
+    #[Description('PascalCase description')]
+    case PascalCase = 'test';
+
+    #[Description('UPPERCASE_NUMERIC description')]
+    case IR35 = 'IR35';
+
+    #[Description('numeric description')]
+    case _123 = '123';
+}
+
+it('can convert a GraphQL value to an enum', function (string $graphQLValue, PascalOnlyDummyEnum|null $enum) {
+    expect(PascalOnlyDummyEnum::tryFromGraphQLValue($graphQLValue))->toBe($enum);
+})->with([
+    ['PASCAL_CASE', PascalOnlyDummyEnum::PascalCase],
+    ['IR35', PascalOnlyDummyEnum::IR35],
+    ['_123', PascalOnlyDummyEnum::_123],
+    ['__NON_EXISTENT', null],
 ]);
