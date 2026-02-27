@@ -60,6 +60,25 @@ enum EnumWithDescriptionMethod
     }
 }
 
+#[CasesDescribedBy(describer: 'description')]
+enum EnumWithDescriptionAttributeAndMethod
+{
+    #[Description('Description from the attribute')]
+    case Main;
+
+    public function description(): string
+    {
+        return 'Description from the describer';
+    }
+}
+
+/** This doc block should be ignored */
+enum EnumWithDocBlocks
+{
+    /** This doc block should be ignored */
+    case Main;
+}
+
 dataset(
     'dummy-enums',
     [
@@ -137,4 +156,17 @@ it('extracts description from method', function () {
     expect($descriptions)->toBe([
         'Main enum description',
     ]);
+});
+
+it('prefers the description attribute over the describer method', function () {
+    $type = new PhpEnumType(EnumWithDescriptionAttributeAndMethod::class);
+
+    expect($type->getValue('MAIN')->description)->toBe('Description from the attribute');
+});
+
+it('does not extract descriptions from doc blocks', function () {
+    $type = new PhpEnumType(EnumWithDocBlocks::class);
+
+    expect($type->description)->toBeNull()
+        ->and($type->getValue('MAIN')->description)->toBeNull();
 });

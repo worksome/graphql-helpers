@@ -22,6 +22,9 @@ enum DummyEnum
     case snake_case; // phpcs:ignore
 
     case NoDescription;
+
+    /** This doc block should be ignored */
+    case DocBlockOnly;
 }
 
 it('can convert an enum to the correct case for GraphQL', function (DummyEnum $enum, string $description) {
@@ -31,4 +34,5 @@ it('can convert an enum to the correct case for GraphQL', function (DummyEnum $e
     [DummyEnum::SCREAMING_SNAKE_CASE, 'SCREAMING_SNAKE_CASE description'],
     [DummyEnum::snake_case, 'snake_case description'],
     [DummyEnum::NoDescription, 'No description'],
+    [DummyEnum::DocBlockOnly, 'Doc block only'],
 ]);
