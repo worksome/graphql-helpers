@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Worksome\GraphQLHelpers\Definition;
 
-use Deprecated;
 use GraphQL\Error\SerializationError;
 use GraphQL\Type\Definition\EnumType;
 use GraphQL\Utils\Utils;
@@ -18,12 +17,6 @@ use Worksome\GraphQLHelpers\Utils\UpperSnakeCaseConverter;
 /** @phpstan-import-type PartialEnumValueConfig from EnumType */
 class PhpEnumType extends EnumType
 {
-    #[Deprecated('Use `DescriptionExtractor` instead.', since: '0.1.19')]
-    public const string MULTIPLE_DESCRIPTIONS_DISALLOWED = DescriptionExtractor::MULTIPLE_DESCRIPTIONS_DISALLOWED;
-
-    #[Deprecated('Use `DeprecationExtractor` instead.', since: '0.1.19')]
-    public const string MULTIPLE_DEPRECATIONS_DISALLOWED = DeprecationExtractor::MULTIPLE_DEPRECATIONS_DISALLOWED;
-
     /** @param  class-string<UnitEnum>  $enumClass */
     public function __construct(protected string $enumClass, string|null $name = null)
     {
