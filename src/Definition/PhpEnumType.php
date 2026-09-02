@@ -25,14 +25,10 @@ class PhpEnumType extends EnumType
 
     public const string MULTIPLE_DEPRECATIONS_DISALLOWED = 'Using more than 1 Deprecated attribute is not supported.';
 
-    /** @var class-string<UnitEnum> */
-    protected string $enumClass;
-
     /** @param  class-string<UnitEnum>  $enumClass */
-    public function __construct(string $enumClass, string|null $name = null)
+    public function __construct(protected string $enumClass, string|null $name = null)
     {
-        $this->enumClass = $enumClass;
-        $reflection = new ReflectionEnum($enumClass);
+        $reflection = new ReflectionEnum($this->enumClass);
 
         /** @var array<string, PartialEnumValueConfig> $enumDefinitions */
         $enumDefinitions = [];
@@ -46,7 +42,7 @@ class PhpEnumType extends EnumType
 
         parent::__construct(
             [
-                'name' => $name ?? $this->baseName($enumClass),
+                'name' => $name ?? $this->baseName($this->enumClass),
                 'values' => $enumDefinitions,
                 'description' => $this->extractDescription($reflection),
             ]
