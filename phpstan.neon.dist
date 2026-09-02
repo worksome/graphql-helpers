@@ -10,3 +10,8 @@ parameters:
     checkModelProperties: true
     parallel:
             processTimeout: 300.0
+
+    ignoreErrors:
+        -
+            identifier: trait.unused
+            path: src/Testing/Concerns/HandlesEnumConversions.php
