@@ -4,80 +4,18 @@ declare(strict_types=1);
 
 namespace Worksome\GraphQLHelpers\Tests\Unit\Definition;
 
-use GraphQL\Type\Definition\Description;
+use GraphQL\Error\Error;
+use GraphQL\Error\SerializationError;
 use GraphQL\Type\Definition\EnumValueDefinition;
 use Illuminate\Support\Collection;
-use Worksome\GraphQLHelpers\Definition\Attributes\CasesDescribedBy;
 use Worksome\GraphQLHelpers\Definition\PhpEnumType;
-
-#[Description('Dummy enum description')]
-enum DummyEnum
-{
-    #[Description('PascalCase description')]
-    case PascalCase;
-
-    #[Description('SCREAMING_SNAKE_CASE description')]
-    case SCREAMING_SNAKE_CASE; // phpcs:ignore
-
-    #[Description('snake_case description')]
-    case snake_case; // phpcs:ignore
-}
-
-#[Description('Dummy enum description')]
-enum DummyStringEnum: string
-{
-    #[Description('PascalCase description')]
-    case PascalCase = 'pascal-case';
-
-    #[Description('SCREAMING_SNAKE_CASE description')]
-    case SCREAMING_SNAKE_CASE = 'screaming-snake-case'; // phpcs:ignore
-
-    #[Description('snake_case description')]
-    case snake_case = 'snake-case'; // phpcs:ignore
-}
-
-#[Description('Dummy enum description')]
-enum DummyIntEnum: int
-{
-    #[Description('PascalCase description')]
-    case PascalCase = 1;
-
-    #[Description('SCREAMING_SNAKE_CASE description')]
-    case SCREAMING_SNAKE_CASE = 2; // phpcs:ignore
-
-    #[Description('snake_case description')]
-    case snake_case = 3; // phpcs:ignore
-}
-
-#[CasesDescribedBy(describer: 'description')]
-enum EnumWithDescriptionMethod
-{
-    case Main;
-
-    public function description(): string
-    {
-        return 'Main enum description';
-    }
-}
-
-#[CasesDescribedBy(describer: 'description')]
-enum EnumWithDescriptionAttributeAndMethod
-{
-    #[Description('Description from the attribute')]
-    case Main;
-
-    public function description(): string
-    {
-        return 'Description from the describer';
-    }
-}
-
-/** This doc block should be ignored */
-enum EnumWithDocBlocks
-{
-    /** This doc block should be ignored */
-    case Main;
-}
+use Worksome\GraphQLHelpers\Tests\Fixtures\Unit\Definition\DummyEnum;
+use Worksome\GraphQLHelpers\Tests\Fixtures\Unit\Definition\DummyIntEnum;
+use Worksome\GraphQLHelpers\Tests\Fixtures\Unit\Definition\DummyStringEnum;
+use Worksome\GraphQLHelpers\Tests\Fixtures\Unit\Definition\EnumWithDeprecatedCases;
+use Worksome\GraphQLHelpers\Tests\Fixtures\Unit\Definition\EnumWithDescriptionAttributeAndMethod;
+use Worksome\GraphQLHelpers\Tests\Fixtures\Unit\Definition\EnumWithDescriptionMethod;
+use Worksome\GraphQLHelpers\Tests\Fixtures\Unit\Definition\EnumWithDocBlocks;
 
 dataset(
     'dummy-enums',
@@ -170,3 +108,66 @@ it('does not extract descriptions from doc blocks', function () {
     expect($type->description)->toBeNull()
         ->and($type->getValue('MAIN')->description)->toBeNull();
 });
+
+it('uses the provided name instead of the enum base name', function () {
+    $type = new PhpEnumType(DummyEnum::class, 'Renamed');
+
+    expect($type->name)->toBe('Renamed');
+});
+
+it('extracts the deprecation reason from php attribute', function () {
+    $type = new PhpEnumType(EnumWithDeprecatedCases::class);
+
+    expect($type->getValue('DEPRECATED')->deprecationReason)->toBe('This is deprecated.')
+        ->and($type->getValue('DEPRECATED')->isDeprecated())->toBeTrue()
+        ->and($type->getValue('NOT_DEPRECATED')->deprecationReason)->toBeNull()
+        ->and($type->getValue('NOT_DEPRECATED')->isDeprecated())->toBeFalse();
+});
+
+it(
+    'serializes an enum case to its GQL name',
+    function ($enumClass) {
+        $type = new PhpEnumType($enumClass);
+
+        expect($type->serialize($enumClass::PascalCase))->toBe('PASCAL_CASE')
+            ->and($type->serialize($enumClass::SCREAMING_SNAKE_CASE))->toBe('SCREAMING_SNAKE_CASE')
+            ->and($type->serialize($enumClass::snake_case))->toBe('SNAKE_CASE');
+    },
+)->with('dummy-enums');
+
+it('throws when serializing a value that is not an instance of the enum', function ($value) {
+    $type = new PhpEnumType(DummyEnum::class);
+
+    $type->serialize($value);
+})->with([
+    'string' => ['PASCAL_CASE'],
+    'null' => [null],
+    'int' => [1],
+    'other enum' => [DummyIntEnum::PascalCase],
+])->throws(SerializationError::class);
+
+it(
+    'parses a GQL name to the matching enum case',
+    function ($enumClass) {
+        $type = new PhpEnumType($enumClass);
+
+        expect($type->parseValue('PASCAL_CASE'))->toBe($enumClass::PascalCase)
+            ->and($type->parseValue('SCREAMING_SNAKE_CASE'))->toBe($enumClass::SCREAMING_SNAKE_CASE)
+            ->and($type->parseValue('SNAKE_CASE'))->toBe($enumClass::snake_case);
+    },
+)->with('dummy-enums');
+
+it(
+    'parses an enum case that has already been through a serialization cycle',
+    function ($enumClass) {
+        $type = new PhpEnumType($enumClass);
+
+        expect($type->parseValue($enumClass::PascalCase))->toBe($enumClass::PascalCase);
+    },
+)->with('dummy-enums');
+
+it('throws when parsing a value that does not exist in the enum', function () {
+    $type = new PhpEnumType(DummyEnum::class);
+
+    $type->parseValue('NON_EXISTENT');
+})->throws(Error::class, 'Value "NON_EXISTENT" does not exist in "DummyEnum" enum.');

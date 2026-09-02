@@ -4,56 +4,14 @@ declare(strict_types=1);
 
 namespace Worksome\GraphQLHelpers\Tests\Unit\Utils\Reflection;
 
-use GraphQL\Type\Definition\Description;
 use LogicException;
 use ReflectionEnum;
 use ReflectionEnumUnitCase;
-use Worksome\GraphQLHelpers\Definition\Attributes\CasesDescribedBy;
+use Worksome\GraphQLHelpers\Tests\Fixtures\Unit\Utils\Reflection\DescriptionExtractorDummyEnum;
+use Worksome\GraphQLHelpers\Tests\Fixtures\Unit\Utils\Reflection\DescriptionExtractorDummyEnumWithDescribedBy;
+use Worksome\GraphQLHelpers\Tests\Fixtures\Unit\Utils\Reflection\DescriptionExtractorDummyEnumWithDocBlock;
+use Worksome\GraphQLHelpers\Tests\Fixtures\Unit\Utils\Reflection\DescriptionExtractorDummyEnumWithDuplicateDescriptions;
 use Worksome\GraphQLHelpers\Utils\Reflection\DescriptionExtractor;
-
-#[Description('Dummy enum description')]
-enum DescriptionExtractorDummyEnum
-{
-    #[Description('PascalCase description')]
-    case PascalCase;
-
-    #[Description('SCREAMING_SNAKE_CASE description')]
-    case SCREAMING_SNAKE_CASE; // phpcs:ignore
-
-    #[Description('snake_case description')]
-    case snake_case; // phpcs:ignore
-
-    case NoDescription;
-
-    /** This doc block should be ignored */
-    case DocBlockOnly;
-}
-
-/** This doc block should be ignored */
-enum DescriptionExtractorDummyEnumWithDocBlock
-{
-    case PascalCase;
-}
-
-#[CasesDescribedBy(describer: 'description')]
-enum DescriptionExtractorDummyEnumWithDescribedBy
-{
-    case PascalCase;
-
-    public function description(): string
-    {
-        return 'Description from the describer';
-    }
-}
-
-#[Description('One')]
-#[Description('Two')]
-enum DescriptionExtractorDummyEnumWithDuplicateDescriptions
-{
-    #[Description('One')]
-    #[Description('Two')]
-    case PascalCase;
-}
 
 it('can extract the description from an enum', function () {
     $reflection = new ReflectionEnum(DescriptionExtractorDummyEnum::class);

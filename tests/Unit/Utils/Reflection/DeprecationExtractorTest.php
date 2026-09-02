@@ -4,22 +4,10 @@ declare(strict_types=1);
 
 namespace Worksome\GraphQLHelpers\Tests\Unit\Utils\Reflection;
 
-use GraphQL\Type\Definition\Deprecated;
 use LogicException;
 use ReflectionEnumUnitCase;
+use Worksome\GraphQLHelpers\Tests\Fixtures\Unit\Utils\Reflection\DeprecationExtractorDummyEnum;
 use Worksome\GraphQLHelpers\Utils\Reflection\DeprecationExtractor;
-
-enum DeprecationExtractorDummyEnum
-{
-    #[Deprecated('This is deprecated.')]
-    case Deprecated;
-
-    case NotDeprecated;
-
-    #[Deprecated('One')]
-    #[Deprecated('Two')]
-    case DeprecatedTwice;
-}
 
 it(
     'can extract the deprecation reason from an enum case',

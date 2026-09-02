@@ -6,61 +6,13 @@ namespace Worksome\GraphQLHelpers\Tests\Unit\Utils\Reflection;
 
 use LogicException;
 use ReflectionEnumUnitCase;
-use Worksome\GraphQLHelpers\Definition\Attributes\CasesDescribedBy;
-use Worksome\GraphQLHelpers\Definition\Concerns\GraphQLDescribable;
+use Worksome\GraphQLHelpers\Tests\Fixtures\Unit\Utils\Reflection\DescribedByExtractorDummyEnum;
+use Worksome\GraphQLHelpers\Tests\Fixtures\Unit\Utils\Reflection\DescribedByExtractorDummyEnumMissingDescriber;
+use Worksome\GraphQLHelpers\Tests\Fixtures\Unit\Utils\Reflection\DescribedByExtractorDummyEnumUsingDescribableConcern;
+use Worksome\GraphQLHelpers\Tests\Fixtures\Unit\Utils\Reflection\DescribedByExtractorDummyEnumWithNonStringReturnType;
+use Worksome\GraphQLHelpers\Tests\Fixtures\Unit\Utils\Reflection\DescribedByExtractorDummyEnumWithNullDescription;
+use Worksome\GraphQLHelpers\Tests\Fixtures\Unit\Utils\Reflection\DescribedByExtractorDummyEnumWithoutAttribute;
 use Worksome\GraphQLHelpers\Utils\Reflection\DescribedByExtractor;
-
-#[CasesDescribedBy(describer: 'description')]
-enum DescribedByExtractorDummyEnum
-{
-    case PascalCase;
-
-    public function description(): string
-    {
-        return 'Description from the describer';
-    }
-}
-
-enum DescribedByExtractorDummyEnumWithoutAttribute
-{
-    case PascalCase;
-}
-
-#[CasesDescribedBy(describer: 'description')]
-enum DescribedByExtractorDummyEnumWithNullDescription
-{
-    case PascalCase;
-
-    public function description(): string|null
-    {
-        return null;
-    }
-}
-
-#[CasesDescribedBy(describer: 'description')]
-enum DescribedByExtractorDummyEnumMissingDescriber
-{
-    case PascalCase;
-}
-
-#[CasesDescribedBy(describer: 'description')]
-enum DescribedByExtractorDummyEnumWithNonStringReturnType
-{
-    case PascalCase;
-
-    public function description(): int
-    {
-        return 123;
-    }
-}
-
-#[CasesDescribedBy(describer: 'description')]
-enum DescribedByExtractorDummyEnumUsingDescribableConcern
-{
-    use GraphQLDescribable;
-
-    case PascalCase;
-}
 
 it('can resolve descriptions from describer', function () {
     $reflection = new ReflectionEnumUnitCase(DescribedByExtractorDummyEnum::class, 'PascalCase');

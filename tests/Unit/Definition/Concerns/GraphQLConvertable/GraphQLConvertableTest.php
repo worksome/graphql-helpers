@@ -4,29 +4,8 @@ declare(strict_types=1);
 
 namespace Worksome\GraphQLHelpers\Tests\Unit\Definition\Concerns\GraphQLConvertable;
 
-use GraphQL\Type\Definition\Description;
-use Worksome\GraphQLHelpers\Definition\Concerns\GraphQLConvertable;
-
-#[Description('Dummy enum description')]
-enum DummyEnum
-{
-    use GraphQLConvertable;
-
-    #[Description('PascalCase description')]
-    case PascalCase;
-
-    #[Description('MACRO_CASE description')]
-    case MACRO_CASE; // phpcs:ignore
-
-    #[Description('snake_case description')]
-    case snake_case; // phpcs:ignore
-
-    #[Description('UPPERCASE_NUMERIC description')]
-    case IR35; // phpcs:ignore
-
-    #[Description('numeric description')]
-    case _123; // phpcs:ignore
-}
+use Worksome\GraphQLHelpers\Tests\Fixtures\Unit\Definition\Concerns\GraphQLConvertable\DummyEnum;
+use Worksome\GraphQLHelpers\Tests\Fixtures\Unit\Definition\Concerns\GraphQLConvertable\PascalOnlyDummyEnum;
 
 it('can convert an enum to the correct case for GraphQL', function (DummyEnum $enum, string $graphQLValue) {
     expect($enum->toGraphQLValue())->toBe($graphQLValue);
@@ -37,20 +16,6 @@ it('can convert an enum to the correct case for GraphQL', function (DummyEnum $e
     [DummyEnum::IR35, 'IR35'],
     [DummyEnum::_123, '_123'],
 ]);
-
-enum PascalOnlyDummyEnum: string
-{
-    use GraphQLConvertable;
-
-    #[Description('PascalCase description')]
-    case PascalCase = 'test';
-
-    #[Description('UPPERCASE_NUMERIC description')]
-    case IR35 = 'IR35';
-
-    #[Description('numeric description')]
-    case _123 = '123';
-}
 
 it('can convert a GraphQL value to an enum', function (string $graphQLValue, PascalOnlyDummyEnum|null $enum) {
     expect(PascalOnlyDummyEnum::tryFromGraphQLValue($graphQLValue))->toBe($enum);
