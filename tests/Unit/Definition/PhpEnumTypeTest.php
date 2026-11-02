@@ -8,6 +8,8 @@ use GraphQL\Error\Error;
 use GraphQL\Error\SerializationError;
 use GraphQL\Type\Definition\EnumValueDefinition;
 use Illuminate\Support\Collection;
+use ReflectionEnum;
+use ReflectionEnumUnitCase;
 use Worksome\GraphQLHelpers\Definition\PhpEnumType;
 use Worksome\GraphQLHelpers\Tests\Fixtures\Unit\Definition\DummyEnum;
 use Worksome\GraphQLHelpers\Tests\Fixtures\Unit\Definition\DummyIntEnum;
@@ -171,3 +173,68 @@ it('throws when parsing a value that does not exist in the enum', function () {
 
     $type->parseValue('NON_EXISTENT');
 })->throws(Error::class, 'Value "NON_EXISTENT" does not exist in "DummyEnum" enum.');
+
+it('allows the enum description to be overridden in a subclass', function () {
+    $type = new class(DummyEnum::class) extends PhpEnumType {
+        protected function enumDescription(ReflectionEnum $reflection): string|null
+        {
+            return "Overridden description for {$reflection->getShortName()}";
+        }
+    };
+
+    expect($type->description)->toBe('Overridden description for DummyEnum')
+        ->and($type->getValue('PASCAL_CASE')->description)->toBe('PascalCase description');
+});
+
+it('allows case descriptions to be overridden in a subclass', function () {
+    $type = new class(DummyEnum::class) extends PhpEnumType {
+        protected function caseDescription(ReflectionEnumUnitCase $case): string|null
+        {
+            return "Overridden description for {$case->name}";
+        }
+    };
+
+    $descriptions = Collection::make($type->getValues())->map(
+        fn (EnumValueDefinition $definition) => $definition->description,
+    )->all();
+
+    expect($type->description)->toBe('Dummy enum description')
+        ->and($descriptions)->toBe([
+            'Overridden description for PascalCase',
+            'Overridden description for SCREAMING_SNAKE_CASE',
+            'Overridden description for snake_case',
+        ]);
+});
+
+it('allows case descriptions to fall back to the parent implementation', function () {
+    $type = new class(EnumWithDescriptionMethod::class) extends PhpEnumType {
+        protected function caseDescription(ReflectionEnumUnitCase $case): string|null
+        {
+            return parent::caseDescription($case) ?? 'Fallback description';
+        }
+    };
+
+    $fallbackType = new class(EnumWithDocBlocks::class) extends PhpEnumType {
+        protected function caseDescription(ReflectionEnumUnitCase $case): string|null
+        {
+            return parent::caseDescription($case) ?? 'Fallback description';
+        }
+    };
+
+    expect($type->getValue('MAIN')->description)->toBe('Main enum description')
+        ->and($fallbackType->getValue('MAIN')->description)->toBe('Fallback description');
+});
+
+it('allows case deprecation reasons to be overridden in a subclass', function () {
+    $type = new class(EnumWithDeprecatedCases::class) extends PhpEnumType {
+        protected function caseDeprecationReason(ReflectionEnumUnitCase $case): string|null
+        {
+            return $case->name === 'NotDeprecated' ? 'Now deprecated.' : null;
+        }
+    };
+
+    expect($type->getValue('DEPRECATED')->deprecationReason)->toBeNull()
+        ->and($type->getValue('DEPRECATED')->isDeprecated())->toBeFalse()
+        ->and($type->getValue('NOT_DEPRECATED')->deprecationReason)->toBe('Now deprecated.')
+        ->and($type->getValue('NOT_DEPRECATED')->isDeprecated())->toBeTrue();
+});
