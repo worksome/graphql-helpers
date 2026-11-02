@@ -8,6 +8,7 @@ use GraphQL\Error\SerializationError;
 use GraphQL\Type\Definition\EnumType;
 use GraphQL\Utils\Utils;
 use ReflectionEnum;
+use ReflectionEnumUnitCase;
 use UnitEnum;
 use Worksome\GraphQLHelpers\Utils\Reflection\DeprecationExtractor;
 use Worksome\GraphQLHelpers\Utils\Reflection\DescribedByExtractor;
@@ -18,7 +19,7 @@ use Worksome\GraphQLHelpers\Utils\UpperSnakeCaseConverter;
 class PhpEnumType extends EnumType
 {
     /** @param  class-string<UnitEnum>  $enumClass */
-    public function __construct(protected string $enumClass, string|null $name = null)
+    public function __construct(protected string $enumClass, string|null $name = null, string|null $description = null)
     {
         $reflection = new ReflectionEnum($this->enumClass);
 
@@ -27,8 +28,8 @@ class PhpEnumType extends EnumType
         foreach ($reflection->getCases() as $case) {
             $enumDefinitions[UpperSnakeCaseConverter::convert($case->name)] = [
                 'value' => $case->getValue(),
-                'description' => DescriptionExtractor::extract($case) ?? DescribedByExtractor::extract($case),
-                'deprecationReason' => DeprecationExtractor::extract($case),
+                'description' => $this->caseDescription($case),
+                'deprecationReason' => $this->caseDeprecationReason($case),
             ];
         }
 
@@ -36,7 +37,7 @@ class PhpEnumType extends EnumType
             [
                 'name' => $name ?? $this->baseName($this->enumClass),
                 'values' => $enumDefinitions,
-                'description' => DescriptionExtractor::extract($reflection),
+                'description' => $description ?? $this->enumDescription($reflection),
             ]
         );
     }
@@ -62,6 +63,22 @@ class PhpEnumType extends EnumType
         }
 
         return parent::parseValue($value);
+    }
+
+    /** @param  ReflectionEnum<UnitEnum>  $reflection */
+    protected function enumDescription(ReflectionEnum $reflection): string|null
+    {
+        return DescriptionExtractor::extract($reflection);
+    }
+
+    protected function caseDescription(ReflectionEnumUnitCase $case): string|null
+    {
+        return DescriptionExtractor::extract($case) ?? DescribedByExtractor::extract($case);
+    }
+
+    protected function caseDeprecationReason(ReflectionEnumUnitCase $case): string|null
+    {
+        return DeprecationExtractor::extract($case);
     }
 
     /** @param  class-string  $class */
