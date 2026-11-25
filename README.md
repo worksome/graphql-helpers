@@ -50,6 +50,23 @@ enum MyEnum
 }
 ```
 
+#### The `GraphQLName` attribute
+
+Each case's GraphQL value name is its case name converted to `UPPER_SNAKE_CASE`. To use a different name, for example to
+keep an existing value that no PascalCase case name converts to, add the `#[GraphQLName]` attribute to the case.
+
+```php
+enum ContractType: string
+{
+    #[\Worksome\GraphQLHelpers\Definition\Attributes\GraphQLName('CONTRACT_TYPE_W_2')]
+    case ContractTypeW2 = 'W-2'; // CONTRACT_TYPE_W_2 rather than CONTRACT_TYPE_W2
+}
+```
+
+The override is used when serializing and parsing values, by the `GraphQLConvertable` concern and by the
+`HandlesEnumConversions` testing concern. A case with an override only accepts that name. An override that matches
+another case's GraphQL name throws a `LogicException`.
+
 ### Enum Concerns
 
 #### `GraphQLConvertable`
