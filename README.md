@@ -67,6 +67,11 @@ The override is used when serializing and parsing values, by the `GraphQLConvert
 `HandlesEnumConversions` testing concern. A case with an override only accepts that name. An override that matches
 another case's GraphQL name throws a `LogicException`.
 
+The package also ships a PHPStan rule, `worksome.uniqueEnumGraphQLNames`, that reports enum cases sharing a GraphQL name
+at analysis time, including enums that are never registered as a GraphQL type. It is registered automatically through
+[`phpstan/extension-installer`](https://github.com/phpstan/extension-installer); without the installer, include
+`vendor/worksome/graphql-helpers/extension.neon` in your PHPStan configuration.
+
 ### Enum Concerns
 
 #### `GraphQLConvertable`
