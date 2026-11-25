@@ -45,7 +45,41 @@ class UniqueEnumGraphQLNamesRuleTest extends RuleTestCase
         $this->analyse([self::FIXTURES . 'ConvertedNamesThatCollide.php'], [
             [
                 'Enum case ' . self::NAMESPACE . 'ConvertedNamesThatCollide::snake_case has the GraphQL name [SNAKE_CASE], which case SnakeCase already uses.',
-                11,
+                10,
+            ],
+        ]);
+    }
+
+    public function test_it_reports_a_converted_name_matching_an_earlier_override(): void
+    {
+        $this->analyse([self::FIXTURES . 'OverrideBeforeMatchingConvertedName.php'], [
+            [
+                'Enum case ' . self::NAMESPACE . 'OverrideBeforeMatchingConvertedName::PlainName has the GraphQL name [PLAIN_NAME], which case Override already uses.',
+                14,
+            ],
+        ]);
+    }
+
+    public function test_it_reports_every_later_case_against_the_first_case_using_the_name(): void
+    {
+        $this->analyse([self::FIXTURES . 'ThreeCasesWithTheSameName.php'], [
+            [
+                'Enum case ' . self::NAMESPACE . 'ThreeCasesWithTheSameName::Second has the GraphQL name [SAME], which case Same already uses.',
+                14,
+            ],
+            [
+                'Enum case ' . self::NAMESPACE . 'ThreeCasesWithTheSameName::Third has the GraphQL name [SAME], which case Same already uses.',
+                17,
+            ],
+        ]);
+    }
+
+    public function test_it_reads_overrides_given_as_a_named_argument(): void
+    {
+        $this->analyse([self::FIXTURES . 'NamedArgumentOverrides.php'], [
+            [
+                'Enum case ' . self::NAMESPACE . 'NamedArgumentOverrides::Second has the GraphQL name [SAME], which case First already uses.',
+                15,
             ],
         ]);
     }

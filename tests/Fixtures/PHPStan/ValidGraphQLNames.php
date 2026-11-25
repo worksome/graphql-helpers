@@ -15,4 +15,8 @@ enum ValidGraphQLNames: string
     case NotSet = 'default';
 
     case StatementOfWork = 'Statement of Work';
+
+    // GraphQL only sees case names, so an override may equal another case's backed value.
+    #[GraphQLName('default')]
+    case MatchesABackedValue = 'other';
 }
