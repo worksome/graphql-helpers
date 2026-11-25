@@ -20,4 +20,5 @@ it('can convert an enum to the correct case for GraphQL', function (UnitEnum $en
     [DummyEnum::snake_case, 'SNAKE_CASE'],
     [DummyEnum::IR35, 'IR35'],
     [DummyEnum::_123, '_123'],
+    [DummyEnum::Overridden, 'CUSTOM_NAME'],
 ]);

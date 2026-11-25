@@ -8,16 +8,19 @@ use GraphQL\Error\Error;
 use GraphQL\Error\SerializationError;
 use GraphQL\Type\Definition\EnumValueDefinition;
 use Illuminate\Support\Collection;
+use LogicException;
 use ReflectionEnum;
 use ReflectionEnumUnitCase;
 use Worksome\GraphQLHelpers\Definition\PhpEnumType;
 use Worksome\GraphQLHelpers\Tests\Fixtures\Unit\Definition\DummyEnum;
 use Worksome\GraphQLHelpers\Tests\Fixtures\Unit\Definition\DummyIntEnum;
 use Worksome\GraphQLHelpers\Tests\Fixtures\Unit\Definition\DummyStringEnum;
+use Worksome\GraphQLHelpers\Tests\Fixtures\Unit\Definition\EnumWithCollidingGraphQLName;
 use Worksome\GraphQLHelpers\Tests\Fixtures\Unit\Definition\EnumWithDeprecatedCases;
 use Worksome\GraphQLHelpers\Tests\Fixtures\Unit\Definition\EnumWithDescriptionAttributeAndMethod;
 use Worksome\GraphQLHelpers\Tests\Fixtures\Unit\Definition\EnumWithDescriptionMethod;
 use Worksome\GraphQLHelpers\Tests\Fixtures\Unit\Definition\EnumWithDocBlocks;
+use Worksome\GraphQLHelpers\Tests\Fixtures\Unit\Definition\EnumWithGraphQLNames;
 
 dataset(
     'dummy-enums',
@@ -238,3 +241,25 @@ it('allows case deprecation reasons to be overridden in a subclass', function ()
         ->and($type->getValue('NOT_DEPRECATED')->deprecationReason)->toBe('Now deprecated.')
         ->and($type->getValue('NOT_DEPRECATED')->isDeprecated())->toBeTrue();
 });
+
+it('uses the GraphQL name attribute for the value name, serializing and parsing', function () {
+    $type = new PhpEnumType(EnumWithGraphQLNames::class);
+
+    $names = Collection::make($type->getValues())
+        ->map(fn (EnumValueDefinition $definition) => $definition->name)
+        ->all();
+
+    expect($names)->toBe(['CONTRACT_TYPE_W_2', 'CONTRACT_TYPE_DEFAULT'])
+        ->and($type->serialize(EnumWithGraphQLNames::ContractTypeW2))->toBe('CONTRACT_TYPE_W_2')
+        ->and($type->parseValue('CONTRACT_TYPE_W_2'))->toBe(EnumWithGraphQLNames::ContractTypeW2);
+});
+
+it('does not accept the converted case name of a case with a GraphQL name attribute', function () {
+    $type = new PhpEnumType(EnumWithGraphQLNames::class);
+
+    $type->parseValue('CONTRACT_TYPE_W2');
+})->throws(Error::class, 'Value "CONTRACT_TYPE_W2" does not exist in "EnumWithGraphQLNames" enum.');
+
+it('throws when a GraphQL name attribute collides with another case', function () {
+    new PhpEnumType(EnumWithCollidingGraphQLName::class);
+})->throws(LogicException::class, 'more than one case with the GraphQL name [FOO]');

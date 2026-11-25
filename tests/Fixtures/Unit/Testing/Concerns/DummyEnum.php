@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Worksome\GraphQLHelpers\Tests\Fixtures\Unit\Testing\Concerns;
 
+use Worksome\GraphQLHelpers\Definition\Attributes\GraphQLName;
+
 enum DummyEnum
 {
     case PascalCase;
@@ -11,4 +13,7 @@ enum DummyEnum
     case snake_case; // phpcs:ignore
     case IR35; // phpcs:ignore
     case _123; // phpcs:ignore
+
+    #[GraphQLName('CUSTOM_NAME')]
+    case Overridden;
 }
