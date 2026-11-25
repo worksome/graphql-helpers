@@ -67,8 +67,19 @@ The override is used when serializing and parsing values, by the `GraphQLConvert
 `HandlesEnumConversions` testing concern. A case with an override only accepts that name. An override that matches
 another case's GraphQL name throws a `LogicException`.
 
-The package also ships a PHPStan rule, `worksome.uniqueEnumGraphQLNames`, that reports enum cases sharing a GraphQL name
-at analysis time, including enums that are never registered as a GraphQL type. It is registered automatically through
+### PHPStan Rules
+
+The package ships PHPStan rules that report attribute mistakes at analysis time, rather than when the GraphQL type is
+built. They also cover enums that are never registered as a GraphQL type.
+
+| Identifier                         | Reports                                                                                          |
+|------------------------------------|--------------------------------------------------------------------------------------------------|
+| `worksome.uniqueEnumGraphQLNames`  | Enum cases that share a GraphQL name, from a `#[GraphQLName]` or the converted case name.        |
+| `worksome.validEnumGraphQLName`    | A `#[GraphQLName]` that isn't a valid GraphQL enum value name (e.g. `W-2`, `__TYPE` or `null`). |
+| `worksome.literalEnumGraphQLName`  | A `#[GraphQLName]` given something other than a literal string, which can't be checked.         |
+| `worksome.enumCasesDescribedBy`    | A `#[CasesDescribedBy]` describer method that is missing, has a required parameter or doesn't return `string` or `null`, or a describer name that isn't a literal string. |
+
+The rules are registered automatically through
 [`phpstan/extension-installer`](https://github.com/phpstan/extension-installer); without the installer, include
 `vendor/worksome/graphql-helpers/extension.neon` in your PHPStan configuration.
 

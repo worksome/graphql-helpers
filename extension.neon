@@ -1,2 +1,4 @@
 rules:
+    - Worksome\GraphQLHelpers\PHPStan\EnumCasesDescribedByRule
     - Worksome\GraphQLHelpers\PHPStan\UniqueEnumGraphQLNamesRule
+    - Worksome\GraphQLHelpers\PHPStan\ValidEnumGraphQLNameRule
