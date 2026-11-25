@@ -26,6 +26,7 @@
         "orchestra/testbench": "^11.0",
         "pestphp/pest": "^5.1",
         "pestphp/pest-plugin-laravel": "^5.0",
+        "phpstan/phpstan": "^2.3",
         "worksome/coding-style": "^7.0"
     },
     "autoload": {
@@ -60,5 +61,12 @@
         }
     },
     "minimum-stability": "dev",
-    "prefer-stable": true
+    "prefer-stable": true,
+    "extra": {
+        "phpstan": {
+            "includes": [
+                "extension.neon"
+            ]
+        }
+    }
 }
